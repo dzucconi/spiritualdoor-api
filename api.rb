@@ -10,7 +10,7 @@ module SpiritualDoor
     resource :status do
       get do
         {
-          ip: env['REMOTE_ADDR'],
+          ip: env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR'],
           referer: request.referer
         }
       end
@@ -48,7 +48,7 @@ module SpiritualDoor
           value: params[:value],
           source: params[:source],
           referer: request.referer,
-          ip: env['REMOTE_ADDR']
+          ip: env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR']
         )
 
         heading.as_json
