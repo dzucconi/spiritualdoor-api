@@ -17,15 +17,40 @@ module SpiritualDoor
     end
 
     resource :headings do
+      desc 'Returns all the headings'
 
-      desc 'Creates a heading.',
-        params: Heading.fields.dup.tap { |fields| fields.delete('_id') }
+      params do
+        optional :size, type: Integer, desc: 'Number of results to return.'
+        optional :cursor, type: String, desc: 'Cursor returned from `next`.'
+      end
+
+      get do
+        {}.tap do |res|
+          res[:size] = params[:size] || 10
+          res[:headings] = Heading
+            .desc(:created_at)
+            .limit(res[:size])
+            .scroll(params[:cursor]) do |record, next_cursor|
+              res[:next] = next_cursor.to_s
+            end
+        end
+      end
+
+      desc 'Creates a heading.'
+
+      params do
+        requires :value, type: Float, desc: 'Compass heading.'
+        requires :source, type: String
+      end
+
       post do
         heading = Heading.create!(
-          ip: env['REMOTE_ADDR'],
+          value: params[:value],
+          source: params[:source],
           referer: request.referer,
-          value: params[:value]
+          ip: env['REMOTE_ADDR']
         )
+
         heading.as_json
       end
 

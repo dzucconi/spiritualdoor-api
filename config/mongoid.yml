@@ -1,12 +1,11 @@
 development:
-  clients:
+  clients:
     default:
       database: spiritual-door-development
       hosts:
         - localhost:27017
-
 test:
-  clients:
+  clients:
     default:
       database: spiritual-door-test
       hosts:

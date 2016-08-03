@@ -11,6 +11,13 @@ Bundler.require
   .flatten
   .each { |f| require f }
 
+use Rack::Cors do
+  allow do
+    origins '*'
+    resource '*', headers: :any, methods: [:get, :post]
+  end
+end
+
 require './api'
 
 run SpiritualDoor::API
