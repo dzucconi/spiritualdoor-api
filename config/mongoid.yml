@@ -10,3 +10,11 @@ test:
       database: spiritual-door-test
       hosts:
         - localhost:27017
+production:
+  clients:
+    default:
+      database: spiritual-door-production
+      options:
+        connect_timeout: 15
+      hosts:
+        - <%= ENV['MONGODB_URI'] %>
