@@ -13,8 +13,6 @@ test:
 production:
   clients:
     default:
-      database: spiritual-door-production
+      uri: <%= ENV['MONGODB_URI'] %>
       options:
         connect_timeout: 15
-      hosts:
-        - <%= ENV['MONGODB_URI'] %>
