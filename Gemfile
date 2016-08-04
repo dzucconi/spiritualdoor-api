@@ -9,4 +9,5 @@ gem 'rack-cors'
 group :development do
   gem 'rerun'
   gem 'rubocop'
+  gem 'byebug'
 end
