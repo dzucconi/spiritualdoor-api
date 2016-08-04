@@ -5,13 +5,21 @@ module SpiritualDoor
     version 'v1', using: :header, vendor: 'Damon Zucconi'
 
     format :json
+
+    get '/' do
+      redirect '/api/status'
+    end
+
     prefix :api
 
     resource :status do
       get do
         {
           ip: env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR'],
-          referer: request.referer
+          referer: request.referer,
+          endpoints: {
+            headings: request.url.gsub('status', 'headings')
+          }
         }
       end
     end
@@ -53,7 +61,6 @@ module SpiritualDoor
 
         heading.as_json
       end
-
     end
   end
 end
