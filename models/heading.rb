@@ -6,6 +6,7 @@ class Heading
   field :value, type: Float
   field :referer, type: String
   field :source, type: String
+  field :sample_rate, type: Integer
 
   index({ created_at: -1 })
 

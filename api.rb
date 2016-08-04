@@ -48,13 +48,15 @@ module SpiritualDoor
 
       params do
         requires :value, type: Float, desc: 'Compass heading.'
-        requires :source, type: String
+        requires :source, type: String,
+        optional :sample_rate, type: Integer
       end
 
       post do
         heading = Heading.create!(
           value: params[:value],
           source: params[:source],
+          sample_rate: params[:sample_rate],
           referer: request.referer,
           ip: env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR']
         )
