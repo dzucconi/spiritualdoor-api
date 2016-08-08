@@ -10,4 +10,5 @@ group :development do
   gem 'rerun'
   gem 'rubocop', require: false
   gem 'byebug'
+  gem 'grape-cli'
 end
