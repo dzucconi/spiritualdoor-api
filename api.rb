@@ -43,7 +43,7 @@ module SpiritualDoor
         {}.tap do |res|
           res[:headings] = Heading
             .desc(:created_at)
-            .limit(res[:size])
+            .limit(params[:size])
             .scroll(params[:cursor]) do |_, next_cursor|
               res[:next] = {
                 url: path_for(request.url, "headings?next=#{next_cursor.to_s}"),
@@ -57,13 +57,15 @@ module SpiritualDoor
 
       params do
         requires :value, type: Float, desc: 'Compass heading.'
-        requires :rate, type: Integer
+        requires :rate, type: Integer,
+        optional :fingerprint, type: String
       end
 
       post do
         heading = Heading.create!(
           value: params[:value],
           rate: params[:rate],
+          fingerprint: params[:fingerprint],
           referer: request.referer,
           ip: env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR']
         )

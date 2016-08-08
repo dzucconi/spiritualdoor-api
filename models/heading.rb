@@ -6,6 +6,7 @@ class Heading
   field :ip, type: String
   field :referer, type: String
   field :rate, type: Integer
+  field :fingerprint, type: String
 
   index created_at: -1
 
