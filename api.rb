@@ -38,7 +38,7 @@ module SpiritualDoor
           res[:headings] = Heading
             .desc(:created_at)
             .limit(res[:size])
-            .scroll(params[:cursor]) do |record, next_cursor|
+            .scroll(params[:cursor]) do |_, next_cursor|
               res[:next] = next_cursor.to_s
             end
         end
@@ -48,15 +48,13 @@ module SpiritualDoor
 
       params do
         requires :value, type: Float, desc: 'Compass heading.'
-        requires :source, type: String
-        optional :sample_rate, type: Integer
+        optional :rate, type: Integer
       end
 
       post do
         heading = Heading.create!(
           value: params[:value],
-          source: params[:source],
-          sample_rate: params[:sample_rate],
+          rate: params[:rate],
           referer: request.referer,
           ip: env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR']
         )
