@@ -35,7 +35,7 @@ module SpiritualDoor
       desc 'Returns all the headings'
 
       params do
-        optional :size, type: Integer, desc: 'Number of results to return.'
+        optional :limit, type: Integer, desc: 'Number of results to return.', default: 10
         optional :cursor, type: String, desc: 'Cursor returned from `next`.'
       end
 
@@ -43,8 +43,8 @@ module SpiritualDoor
         {}.tap do |res|
           res[:headings] = Heading
             .desc(:created_at)
-            .limit(params[:size])
-            .scroll(params[:cursor]) do |_, next_cursor|
+            .limit(params[:limit])
+            .scroll(params[:next]) do |_, next_cursor|
               res[:next] = {
                 url: path_for(request.url, "headings?next=#{next_cursor.to_s}"),
                 cursor: next_cursor.to_s
