@@ -34,9 +34,11 @@ module SpiritualDoor
 
       get do
         {}.tap do |res|
+          headings = Heading.desc(:created_at)
+
+          res[:total] = headings.count
           res[:size] = params[:size] || 10
-          res[:headings] = Heading
-            .desc(:created_at)
+          res[:headings] = headings
             .limit(res[:size])
             .scroll(params[:cursor]) do |_, next_cursor|
               res[:next] = next_cursor.to_s
