@@ -9,9 +9,9 @@ class Heading
 
   index created_at: -1
 
-  validates_presence_of :value
-  validates_numericality_of :value,
-                            greater_than_or_equal_to: 0.0,
+  validates_presence_of :value, :rate
+  validates_numericality_of :rate, greater_than_or_equal_to: 0
+  validates_numericality_of :value, greater_than_or_equal_to: 0.0,
                             less_than_or_equal_to: 360.0
 
   def as_json(options = {})
