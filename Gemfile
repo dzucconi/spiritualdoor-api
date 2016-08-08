@@ -8,6 +8,6 @@ gem 'rack-cors'
 
 group :development do
   gem 'rerun'
-  gem 'rubocop'
+  gem 'rubocop', require: false
   gem 'byebug'
 end
