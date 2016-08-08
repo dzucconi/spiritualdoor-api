@@ -57,7 +57,7 @@ module SpiritualDoor
 
       params do
         requires :value, type: Float, desc: 'Compass heading.'
-        requires :rate, type: Integer,
+        requires :rate, type: Integer
         optional :fingerprint, type: String
       end
 
