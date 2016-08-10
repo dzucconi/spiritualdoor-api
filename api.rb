@@ -1,10 +1,13 @@
-require 'grape'
-
-def path_for(from, new_path)
+def path_for(from, new_path, params = {})
   from.split('/').tap  { |url|
     url.pop
     url.push(new_path)
-  }.join('/')
+  }.join('/') +
+  '?' + params.map { |k, v| "#{k}=#{v}" }.join('&')
+end
+
+def ip(env)
+  env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR']
 end
 
 module SpiritualDoor
@@ -22,40 +25,21 @@ module SpiritualDoor
     resource :status do
       get do
         {
-          ip: env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR'],
-          referer: request.referer,
-          endpoints: {
-            headings: path_for(request.url, 'headings')
-          }
+          ip: ip(env)
         }
       end
     end
 
     resource :headings do
-      desc 'Returns the total heading count'
+      desc 'Returns the total counts'
 
-      get '/count' do
-        Heading.count
-      end
-
-      desc 'Search by IP'
-      params do
-        requires :ip, type: String
-        optional :limit, type: Integer, desc: 'Number of results to return.', default: 10
-      end
-
-      get '/ip' do
-        {}.tap do |res|
-          res[:headings] = Heading
-            .where(ip: params[:ip])
-            .desc(:created_at)
-            .limit(params[:limit])
-            .scroll(params[:next]) do |_, next_cursor|
-              res[:next] = {
-                url: path_for(request.url, "headings?next=#{next_cursor.to_s}"),
-                cursor: next_cursor.to_s
-              }
-            end
+      get '/counts' do
+        if params[:ip]
+          Heading.where(ip: params[:ip]).count
+        elsif params[:fingerprint]
+          Heading.where(fingerprint: params[:fingerprint]).count
+        else
+          Heading.count
         end
       end
 
@@ -64,20 +48,32 @@ module SpiritualDoor
       params do
         optional :limit, type: Integer, desc: 'Number of results to return.', default: 10
         optional :cursor, type: String, desc: 'Cursor returned from `next`.'
+        optional :ip, type: String, desc: 'Optionally filter by IP.'
+        optional :fingerprint, type: String, desc: 'Optionally filter by fingerprint.'
       end
 
       get do
-        {}.tap do |res|
-          res[:headings] = Heading
-            .desc(:created_at)
-            .limit(params[:limit])
-            .scroll(params[:next]) do |_, next_cursor|
-              res[:next] = {
-                url: path_for(request.url, "headings?next=#{next_cursor.to_s}"),
-                cursor: next_cursor.to_s
-              }
-            end
-        end
+        res = { next: {}, headings: [] }
+
+        headings = Heading.desc(:created_at)
+
+        headings = headings.where(ip: params[:ip]) if params[:ip]
+        headings = headings.where(fingerprint: params[:fingerprint]) if params[:fingerprint]
+
+        res[:total] = headings.count
+
+        headings
+          .limit(params[:limit])
+          .scroll(params[:next]) do |record, next_cursor|
+            res[:headings] << record if record
+
+            res[:next] = {
+              url: path_for(request.url, 'headings', params.merge(next: next_cursor.to_s)),
+              cursor: next_cursor.to_s
+            }
+          end
+
+        res.as_json
       end
 
       desc 'Creates a heading.'
@@ -94,7 +90,7 @@ module SpiritualDoor
           rate: params[:rate],
           fingerprint: params[:fingerprint],
           referer: request.referer,
-          ip: env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR']
+          ip: ip(env)
         )
 
         heading.as_json
