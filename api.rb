@@ -50,6 +50,7 @@ module SpiritualDoor
         optional :cursor, type: String, desc: 'Cursor returned from `next`.'
         optional :ip, type: String, desc: 'Optionally filter by IP.'
         optional :fingerprint, type: String, desc: 'Optionally filter by fingerprint.'
+        optional :referer, type: String, desc: 'Optionally filter by referer'
       end
 
       get do
@@ -59,6 +60,7 @@ module SpiritualDoor
 
         headings = headings.where(ip: params[:ip]) if params[:ip]
         headings = headings.where(fingerprint: params[:fingerprint]) if params[:fingerprint]
+        headings = headings.where(referer: params[:referer]) if params[:referer]
 
         res[:total] = headings.count
 
