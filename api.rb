@@ -32,6 +32,33 @@ module SpiritualDoor
     end
 
     resource :headings do
+      desc 'Returns the total heading count'
+
+      get '/count' do
+        Heading.count
+      end
+
+      desc 'Search by IP'
+      params do
+        requires :ip, type: String
+        optional :limit, type: Integer, desc: 'Number of results to return.', default: 10
+      end
+
+      get '/ip' do
+        {}.tap do |res|
+          res[:headings] = Heading
+            .where(ip: params[:ip])
+            .desc(:created_at)
+            .limit(params[:limit])
+            .scroll(params[:next]) do |_, next_cursor|
+              res[:next] = {
+                url: path_for(request.url, "headings?next=#{next_cursor.to_s}"),
+                cursor: next_cursor.to_s
+              }
+            end
+        end
+      end
+
       desc 'Returns all the headings'
 
       params do
