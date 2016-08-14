@@ -5,6 +5,7 @@ Bundler.require
 
 %w(
   /config/initializers/**/*.rb
+  /services/**/*.rb
   /models/**/*.rb
 )
   .map { |pattern| Dir[File.dirname(__FILE__) + pattern] }

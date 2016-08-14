@@ -15,9 +15,28 @@ class Heading
   validates_numericality_of :value, greater_than_or_equal_to: 0.0,
                             less_than_or_equal_to: 360.0
 
+  def point
+    @point ||= Compass.nearest(value)
+  end
+
+  def name
+    point[:point]
+  end
+
+  def abbreviation
+    point[:abbreviation]
+  end
+
+  def wind
+    point[:wind]
+  end
+
   def as_json(options = {})
     attrs = super options
     attrs['id'] = attrs['_id'].to_s
+    attrs['name'] = name
+    attrs['abbreviation'] = abbreviation
+    attrs['wind'] = wind
     attrs.except! '_id', 'updated_at'
   end
 end
