@@ -10,6 +10,25 @@ def ip(env)
   env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR']
 end
 
+def paginate(collection, name)
+  res = { next: {} }
+
+  res[name] = []
+  res[:total] = collection.count
+
+  collection
+    .limit(params[:limit])
+    .scroll(params[:next]) do |record, next_cursor|
+      res[name] << record if record
+      res[:next] = {
+        cursor: next_cursor.to_s,
+        url: path_for(request.url, name, params.merge(next: next_cursor.to_s))
+      }
+    end
+
+  res
+end
+
 module SpiritualDoor
   class API < Grape::API
     version 'v1', using: :header, vendor: 'Damon Zucconi'
@@ -54,28 +73,13 @@ module SpiritualDoor
       end
 
       get do
-        res = { next: {}, headings: [] }
-
         headings = Heading.desc(:created_at)
-
         headings = headings.where(ip: params[:ip]) if params[:ip]
         headings = headings.where(fingerprint: params[:fingerprint]) if params[:fingerprint]
         headings = headings.where(referer: params[:referer]) if params[:referer]
 
-        res[:total] = headings.count
-
-        headings
-          .limit(params[:limit])
-          .scroll(params[:next]) do |record, next_cursor|
-            res[:headings] << record if record
-
-            res[:next] = {
-              url: path_for(request.url, 'headings', params.merge(next: next_cursor.to_s)),
-              cursor: next_cursor.to_s
-            }
-          end
-
-        res.as_json
+        paginate(headings, :headings)
+          .as_json
       end
 
       desc 'Creates a heading.'
