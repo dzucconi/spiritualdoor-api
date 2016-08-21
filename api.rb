@@ -43,9 +43,21 @@ module SpiritualDoor
 
     resource :status do
       get do
-        {
-          ip: ip(env)
-        }
+        { ip: ip(env) }
+      end
+    end
+
+    resource :ips do
+      get do
+        Heading.distinct(:ip)
+          .as_json
+      end
+    end
+
+    resource :fingerprints do
+      get do
+        Heading.distinct(:fingerprint)
+          .as_json
       end
     end
 
