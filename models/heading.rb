@@ -18,7 +18,7 @@ class Heading
   after_create :location
 
   def location
-    @location ||= Location.find_or_create_by(ip: ip || '::1')
+    @location ||= Location.find_or_create_by(ip: ip)
   end
 
   def point
