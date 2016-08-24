@@ -22,12 +22,7 @@ class Location
     end
   end
 
-  after_create :full_geocode
-
-  def full_geocode
-    geocode
-    reverse_geocode
-  end
+  after_validation :geocode, :reverse_geocode
 
   def as_json(options = {})
     attrs = super options
