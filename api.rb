@@ -1,9 +1,9 @@
 def path_for(from, new_path, params = {})
-  from.split('/').tap  { |url|
+  from.split('/').tap do |url|
     url.pop
     url.push(new_path)
-  }.join('/') +
-  '?' + params.map { |k, v| "#{k}=#{v}" }.join('&')
+  end.join('/') +
+    '?' + params.map { |k, v| "#{k}=#{v}" }.join('&')
 end
 
 def ip(env)
@@ -11,22 +11,19 @@ def ip(env)
 end
 
 def paginate(collection, name)
-  res = { next: {} }
-
-  res[name] = []
-  res[:total] = collection.count
-
-  collection
-    .limit(params[:limit])
-    .scroll(params[:next]) do |record, next_cursor|
-      res[name] << record if record
-      res[:next] = {
-        cursor: next_cursor.to_s,
-        url: path_for(request.url, name, params.merge(next: next_cursor.to_s))
-      }
-    end
-
-  res
+  { next: {} }.tap do |res|
+    res[name] = []
+    res[:total] = collection.count
+    collection
+      .limit(params[:limit])
+      .scroll(params[:next]) do |record, next_cursor|
+        res[name] << record if record
+        res[:next] = {
+          cursor: next_cursor.to_s,
+          url: path_for(request.url, name, params.merge(next: next_cursor.to_s))
+        }
+      end
+  end
 end
 
 module SpiritualDoor
