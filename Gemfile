@@ -6,10 +6,10 @@ gem 'mongoid', '~> 5.1', '>= 5.1.3'
 gem 'mongoid-scroll'
 gem 'rack-cors'
 gem 'geocoder'
+gem 'grape-cli'
 
 group :development do
   gem 'rerun'
   gem 'rubocop', require: false
   gem 'byebug'
-  gem 'grape-cli'
 end
