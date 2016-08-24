@@ -86,9 +86,26 @@ module SpiritualDoor
         headings = headings.where(ip: params[:ip]) if params[:ip]
         headings = headings.where(fingerprint: params[:fingerprint]) if params[:fingerprint]
         headings = headings.where(referer: params[:referer]) if params[:referer]
+        headings = paginate(headings, :headings)
 
-        paginate(headings, :headings)
-          .as_json
+        ips = headings[:headings].map(&:ip).uniq
+
+        locations = ips.reduce({}) do |memo, ip|
+          begin
+            memo[ip] ||= Location.find_by(ip: ip)
+          rescue Mongoid::Errors::DocumentNotFound
+            # Ignore
+          end
+          memo
+        end
+
+        headings[:headings] = headings[:headings].map do |heading|
+          heading.location = locations[heading.ip]
+          heading
+        end
+
+        headings
+
       end
 
       desc 'Creates a heading.'
@@ -97,6 +114,7 @@ module SpiritualDoor
         requires :value, type: Float, desc: 'Compass heading.'
         requires :rate, type: Integer
         optional :fingerprint, type: String
+        optional :ip, type: String, desc: 'Overwrite automatic IP'
       end
 
       post do
@@ -105,7 +123,7 @@ module SpiritualDoor
           rate: params[:rate],
           fingerprint: params[:fingerprint],
           referer: request.referer,
-          ip: ip(env)
+          ip: params[:ip] || ip(env)
         )
 
         heading.as_json

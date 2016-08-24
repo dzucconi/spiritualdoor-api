@@ -21,6 +21,10 @@ class Heading
     @location ||= Location.find_or_create_by(ip: ip)
   end
 
+  def location=(location)
+    @location = location
+  end
+
   def point
     @point ||= Compass.nearest(value)
   end
@@ -43,6 +47,7 @@ class Heading
     attrs['name'] = name
     attrs['abbreviation'] = abbreviation
     attrs['wind'] = wind
+    attrs['location'] = location.as_json
     attrs.except! '_id', 'updated_at'
   end
 end
