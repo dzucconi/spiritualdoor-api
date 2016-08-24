@@ -15,6 +15,12 @@ class Heading
   validates_numericality_of :value, greater_than_or_equal_to: 0.0,
                             less_than_or_equal_to: 360.0
 
+  after_create :location
+
+  def location
+    @location ||= Location.find_or_create_by(ip: ip || '::1')
+  end
+
   def point
     @point ||= Compass.nearest(value)
   end

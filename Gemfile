@@ -5,6 +5,7 @@ gem 'grape', '~> 0.17.0'
 gem 'mongoid', '~> 5.1', '>= 5.1.3'
 gem 'mongoid-scroll'
 gem 'rack-cors'
+gem 'geocoder'
 
 group :development do
   gem 'rerun'
