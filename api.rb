@@ -123,7 +123,7 @@ module SpiritualDoor
           rate: params[:rate],
           fingerprint: params[:fingerprint],
           referer: request.referer,
-          ip: params[:ip] || ip(env)
+          ip: (params[:ip] || ip(env)).split(',').first.strip
         )
 
         heading.as_json
