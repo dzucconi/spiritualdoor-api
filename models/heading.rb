@@ -15,10 +15,14 @@ class Heading
   validates_numericality_of :value, greater_than_or_equal_to: 0.0,
                             less_than_or_equal_to: 360.0
 
-  after_create :location
+  after_create :create_location
+
+  def create_location
+    @location ||= Location.find_or_create_by!(ip: ip)
+  end
 
   def location
-    @location ||= Location.find_or_create_by(ip: ip)
+    @location ||= Location.find_by(ip: ip)
   end
 
   def location=(location)
