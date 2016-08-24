@@ -43,6 +43,9 @@ class Heading
     attrs['name'] = name
     attrs['abbreviation'] = abbreviation
     attrs['wind'] = wind
+    attrs['location'] = {
+      coordinates: location.coordinates
+    }
     attrs.except! '_id', 'updated_at'
   end
 end
