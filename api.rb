@@ -105,7 +105,6 @@ module SpiritualDoor
         end
 
         headings
-
       end
 
       desc 'Creates a heading.'
