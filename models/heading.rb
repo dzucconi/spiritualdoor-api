@@ -22,7 +22,11 @@ class Heading
   end
 
   def location
-    @location ||= Location.find_by(ip: ip)
+    begin
+      @location ||= Location.find_by(ip: ip)
+    rescue Mongoid::Errors::DocumentNotFound
+      # Ignore
+    end
   end
 
   def location=(location)
