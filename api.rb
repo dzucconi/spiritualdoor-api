@@ -52,8 +52,17 @@ module SpiritualDoor
     end
 
     resource :fingerprints do
+      params do
+        optional :limit, type: Integer, desc: 'Number of results to return.', default: 10
+        optional :offset, type: Integer, desc: 'Number to offset by.', default: 0
+      end
+
       get do
-        Heading.distinct(:fingerprint)
+        Heading
+          .desc(:created_at)
+          .map(&:fingerprint)
+          .uniq
+          .slice(params[:offset], params[:limit])
           .as_json
       end
     end
