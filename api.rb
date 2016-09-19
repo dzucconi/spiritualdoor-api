@@ -136,6 +136,16 @@ module SpiritualDoor
 
         heading.as_json
       end
+
+      desc 'Calculate the average heading'
+
+      get '/average' do
+        value = Heading.avg('value')
+        point = Compass.nearest(value)
+
+        { value: value }
+          .merge(point.slice :point, :abbreviation, :wind)
+      end
     end
   end
 end
